@@ -42,7 +42,10 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - secretName: mern-ecommerce-tls
+      hosts:
+        - mern-ecommerce.local
 
 mongodb:
   enabled: true
@@ -75,15 +78,6 @@ config:
   paginationMaxLimit: 12
   emailHost: smtp-relay.brevo.com
   emailPort: 587
-  lifecycle:
-    postStart:
-      exec:
-        command:
-          [
-            "/bin/sh",
-            "-c",
-            "echo resolver $(awk '/^nameserver/{print $2; exit}' /etc/resolv.conf) valid=10s ipv6=off ';' > /etc/nginx/resolv.conf",
-          ]
 
 resources: {}
 nodeSelector: {}
