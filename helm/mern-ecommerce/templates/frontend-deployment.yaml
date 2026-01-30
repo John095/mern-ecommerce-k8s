@@ -17,6 +17,18 @@ spec:
         {{- include "mern-ecommerce.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: frontend
     spec:
+      # Add init container to wait for backend service
+      initContainers:
+      - name: wait-for-backend
+        image: busybox:1.35
+        command: ['sh', '-c']
+        args:
+        - |
+          until nslookup {{ include "mern-ecommerce.fullname" . }}-backend.{{ .Release.Namespace }}.svc.cluster.local; do
+            echo "Waiting for backend service..."
+            sleep 2
+          done
+          echo "Backend service is ready!"
       containers:
       - name: frontend
         image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
