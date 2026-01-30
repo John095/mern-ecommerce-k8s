@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: mern-ecommerce.untolddevops.site
+    - host: mern-ecommerce.local
       http:
         paths:
           - path: /

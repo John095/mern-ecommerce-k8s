@@ -1,0 +1,82 @@
+# Default values for mern-ecommerce
+replicaCount:
+  backend: 2
+  frontend: 2
+
+# Docker image configurations for Amazon ECR
+# image:
+#   backend:
+#     repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/mern-backend
+#     tag: latest
+#     pullPolicy: IfNotPresent
+#   frontend:
+#     repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/mern-frontend
+#     tag: latest
+#     pullPolicy: IfNotPresent
+
+# Docker image configurations for Docker Hub
+image:
+  backend:
+    repository: untolddev/mern-ecommerce-k8s-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: untolddev/mern-ecommerce-k8s-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+service:
+  backend:
+    type: ClusterIP
+    port: 5000
+  frontend:
+    type: ClusterIP
+    port: 80
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: mern-ecommerce.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+mongodb:
+  enabled: true
+  image:
+    repository: mongo
+    tag: "7"
+  persistence:
+    enabled: true
+    size: 10Gi
+  service:
+    port: 27017
+
+secrets:
+  jwtSecret: "MWM0MjQ4YmFmYmQwZTJkYWQ4YTQxODU4NjU0NDc1ZTQ0NTFiYTgyYzdjNWRhYzlmYTZlMjU2MmQ0MjFkODdmODBmZDkyYzdmYzZjYzBjZDY1YjFmZGNiMTU2ZmMwZmE4ZGNiOTYzZTc3YzMwNTM2Zjg5OWI2ZWNlZjg4ZDNjNGQ="
+  razorpay:
+    keyId: "your-razorpay-key-id"
+    keySecret: "your-razorpay-secret"
+  email:
+    user: "your-email@example.com"
+    pass: "your-email-password"
+    from: "your-email@example.com"
+  aws:
+    accessKeyId: ""
+    secretAccessKey: ""
+    region: "us-east-1"
+    s3BucketName: ""
+
+config:
+  nodeEnv: production
+  paginationMaxLimit: 12
+  emailHost: smtp-relay.brevo.com
+  emailPort: 587
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

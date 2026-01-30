@@ -13,53 +13,85 @@ spec:
         app: backend
     spec:
       containers:
-      - name: backend
-        image: BACKEND_IMAGE
-        ports:
-        - containerPort: 5000
-        env:
-        - name: NODE_ENV
-          value: production
-        - name: PORT
-          value: "5000"
-        - name: MONGO_URI
-          value: mongodb://mongodb:27017/mern-ecommerce
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: jwt-secret
-        - name: RAZORPAY_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: razorpay-key-id
-        - name: RAZORPAY_KEY_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: razorpay-key-secret
-        - name: EMAIL_HOST
-          value: smtp-relay.brevo.com
-        - name: EMAIL_PORT
-          value: "587"
-        - name: EMAIL_USER
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: email-user
-        - name: EMAIL_PASS
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: email-pass
-        - name: EMAIL_FROM
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: email-from
-        - name: PAGINATION_MAX_LIMIT
-          value: "12"
+        - name: backend
+          image: untolddev/mern-ecommerce-k8s-backend
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "5000"
+            - name: MONGO_URI
+              value: mongodb://mongodb:27017/mern-ecommerce
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwt-secret
+            - name: RAZORPAY_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: razorpay-key-id
+            - name: RAZORPAY_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: razorpay-key-secret
+            - name: EMAIL_HOST
+              value: smtp-relay.brevo.com
+            - name: EMAIL_PORT
+              value: "587"
+            - name: EMAIL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: email-user
+            - name: EMAIL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: email-pass
+            - name: EMAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: email-from
+            - name: PAGINATION_MAX_LIMIT
+              value: "12"
+            # AWS S3 Configuration (optional)
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-access-key-id
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-secret-access-key
+                  optional: true
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-region
+                  optional: true
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: s3-bucket-name
+                  optional: true
 ---
 apiVersion: v1
 kind: Service
@@ -69,5 +101,5 @@ spec:
   selector:
     app: backend
   ports:
-  - port: 5000
-    targetPort: 5000
+    - port: 5000
+      targetPort: 5000

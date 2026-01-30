@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mern-ecommerce.fullname" . }}-backend
+  labels:
+    {{- include "mern-ecommerce.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      {{- include "mern-ecommerce.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "mern-ecommerce.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+      - name: backend
+        image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+        imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 5000
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.config.nodeEnv }}
+        - name: PORT
+          value: "5000"
+        - name: MONGO_URI
+          value: "mongodb://{{ include "mern-ecommerce.fullname" . }}-mongodb:27017/mern-ecommerce"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: jwt-secret
+        - name: RAZORPAY_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: razorpay-key-id
+        - name: RAZORPAY_KEY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: razorpay-key-secret
+        - name: EMAIL_HOST
+          value: {{ .Values.config.emailHost }}
+        - name: EMAIL_PORT
+          value: "{{ .Values.config.emailPort }}"
+        - name: EMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: email-user
+        - name: EMAIL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: email-pass
+        - name: EMAIL_FROM
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: email-from
+        - name: PAGINATION_MAX_LIMIT
+          value: "{{ .Values.config.paginationMaxLimit }}"
+        {{- if .Values.secrets.aws.accessKeyId }}
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: aws-access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: aws-secret-access-key
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: aws-region
+        - name: S3_BUCKET_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mern-ecommerce.fullname" . }}-secrets
+              key: s3-bucket-name
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

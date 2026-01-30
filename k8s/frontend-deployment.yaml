@@ -13,10 +13,17 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: FRONTEND_IMAGE
-        ports:
-        - containerPort: 80
+        - name: frontend
+          image: untolddev/mern-ecommerce-k8s-frontend
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
@@ -26,5 +33,5 @@ spec:
   selector:
     app: frontend
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80

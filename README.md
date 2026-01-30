@@ -82,7 +82,16 @@ EMAIL_PORT=587
 EMAIL_USER=your_brevo_login
 EMAIL_PASS=your_brevo_password
 EMAIL_FROM=your_brevo_login
+# AWS S3 Configuration (optional - leave empty to use local storage)
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=your-bucket-name
 ```
+
+**Image Storage Options:**
+- **Local Storage (Default)**: Images stored in `/uploads` directory
+- **AWS S3**: Configure AWS credentials to automatically use S3 storage
 
 ## Development
 
