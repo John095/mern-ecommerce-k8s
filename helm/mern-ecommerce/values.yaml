@@ -59,7 +59,8 @@ mongodb:
     port: 27017
 
 secrets:
-  jwtSecret: "MWM0MjQ4YmFmYmQwZTJkYWQ4YTQxODU4NjU0NDc1ZTQ0NTFiYTgyYzdjNWRhYzlmYTZlMjU2MmQ0MjFkODdmODBmZDkyYzdmYzZjYzBjZDY1YjFmZGNiMTU2ZmMwZmE4ZGNiOTYzZTc3YzMwNTM2Zjg5OWI2ZWNlZjg4ZDNjNGQ="
+  # Required — supply at install time: --set secrets.jwtSecret="$(openssl rand -hex 64)"
+  jwtSecret: ""
   razorpay:
     keyId: "your-razorpay-key-id"
     keySecret: "your-razorpay-secret"

@@ -35,9 +35,32 @@ jobs:
           docker build -f frontend/Dockerfile -t ${{ env.ECR_REGISTRY }}/mern-frontend:${{ github.sha }} ./frontend
           docker push ${{ env.ECR_REGISTRY }}/mern-frontend:${{ github.sha }}
 
-      - name: Deploy to EKS
+      - name: Configure kubectl for EKS
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+
+      - name: Sync app secrets
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          test -n "$JWT_SECRET" || { echo "::error::JWT_SECRET repository secret is not set"; exit 1; }
+          # Render the Secret client-side and apply it, so re-runs update it in place
+          kubectl create secret generic app-secrets \
+            --from-literal=jwt-secret="$JWT_SECRET" \
+            --from-literal=razorpay-key-id="$RAZORPAY_KEY_ID" \
+            --from-literal=razorpay-key-secret="$RAZORPAY_KEY_SECRET" \
+            --from-literal=email-user="$EMAIL_USER" \
+            --from-literal=email-pass="$EMAIL_PASS" \
+            --from-literal=email-from="$EMAIL_FROM" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply manifests
+        run: |
           sed -i "s|BACKEND_IMAGE|${{ env.ECR_REGISTRY }}/mern-backend:${{ github.sha }}|g" k8s/backend.yaml
           sed -i "s|FRONTEND_IMAGE|${{ env.ECR_REGISTRY }}/mern-frontend:${{ github.sha }}|g" k8s/frontend.yaml
           kubectl apply -f k8s/

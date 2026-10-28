@@ -96,3 +96,10 @@ Thumbs.db
 # Uploaded files (keep structure but ignore content)
 uploads/*
 !uploads/.gitkeep
+
+# Secrets and key material — never committed. Create the Kubernetes Secret at
+# deploy time (see README) and generate local TLS certs with openssl.
+k8s/secrets.yaml
+certs/
+*.key
+*.pem
