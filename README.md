@@ -140,10 +140,24 @@ Services will be available at:
    sed -i 's|FRONTEND_IMAGE|your-registry/frontend:tag|g' k8s/frontend-deployment.yaml
    ```
 
-2. **Create secrets**:
+2. **Create secrets** (never committed — `k8s/secrets.yaml` is gitignored):
 
    ```bash
-   kubectl apply -f k8s/secrets.yaml
+   kubectl create secret generic app-secrets \
+     --from-literal=jwt-secret="$(openssl rand -hex 64)" \
+     --from-literal=razorpay-key-id="rzp_test_..." \
+     --from-literal=razorpay-key-secret="..." \
+     --from-literal=email-user="..." \
+     --from-literal=email-pass="..." \
+     --from-literal=email-from="..."
+   ```
+
+   For TLS on a local cluster, generate a throwaway self-signed cert instead of committing one:
+
+   ```bash
+   openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+     -keyout certs/tls.key -out certs/tls.crt -subj "/CN=mern-ecommerce.local"
+   kubectl create secret tls mern-ecommerce-tls --cert certs/tls.crt --key certs/tls.key
    ```
 
 3. **Deploy application**:
@@ -160,6 +174,7 @@ The project includes GitHub Actions workflow for automated deployment to AWS EKS
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`
    - `ECR_REGISTRY`
+   - `JWT_SECRET` (required) and optionally `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM` — the workflow builds the `app-secrets` Secret from these
 
 2. **Push to main branch** - deployment happens automatically
 
